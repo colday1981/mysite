@@ -1,0 +1,34 @@
+{% extends 'base.html'%}
+
+{% block title %}
+    {{ blog.title}}
+{% endblock %}
+
+{% block content%}
+
+    <h3>{{blog.title}}</h3>
+    <p>作者：{{blog.author}}</p>
+    <p>发表时间：{{blog.created_time}}</p>
+    <p>最后修改时间：{{blog.last_updated_time}}</p>
+    <p>类别：<a href="{% url 'blog_with_type' blog.blog_type.pk %}"> {{blog.blog_type}}</a></p>
+    <p>{{blog.content|safe}}</p>
+    <div class="blog-more">
+        <p>
+            上一篇：
+            {% if previous_blog %}
+                <a href="{% url 'blog_detail' previous_blog.pk %}">{{previous_blog.title}}</a>
+            {% else%}
+                empty
+            {% endif %}
+        </p>
+        <p>
+            下一篇：
+            {% if next_blog %}
+                <a href="{% url 'blog_detail' next_blog.pk %}">{{next_blog.title}}</a>
+            {% else%}
+                empty
+            {% endif %}
+        </p>
+
+    </div>
+{% endblock %}
