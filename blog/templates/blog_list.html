@@ -13,6 +13,10 @@
                         <a href="{% url 'blog_detail' blog.pk %}">
                             <h3>{{blog.title}}</h3>
                         </a>
+                            <p class="blog-info">
+                                阅读（{{blog.get_read_num}}）
+                            </p>
+
                         <p>{{blog.content|truncatechars:30}}</p>
                     {% empty %}
                         <p>--暂无博客，敬请期待！--</p>

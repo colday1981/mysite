@@ -1,9 +1,10 @@
-import markdown
-from django.shortcuts import render_to_response, get_object_or_404
+#import markdown
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.db.models import Count
 from .models import Blog,BlogType
+from read_statistics.utils import read_satistics_once_more
 
 
 def blog_common_data(request, blogs_all_list):
@@ -43,7 +44,7 @@ def blog_common_data(request, blogs_all_list):
 def blog_list(request):
     blogs_all_list=Blog.objects.all()
     context = blog_common_data(request, blogs_all_list)
-    return render_to_response('blog_list.html', context)
+    return render(request,'blog_list.html', context)
 
 
 def blog_with_type(request, blog_type_pk):
@@ -60,15 +61,19 @@ def blog_with_date(request, year, month):
     return render_to_response('blog_with_date.html', context)
 
 def blog_detail(request, blog_pk):
-    context={}
     blog=get_object_or_404(Blog, pk=blog_pk)
-    blog.content=markdown.markdown(blog.content,
-                                   extensions=['markdown.extensions.extra','markdown.extensions.codehilite','markdown.extensions.toc',])
+    read_cookie_key=read_satistics_once_more(request,blog)
+    # blog.content=markdown.markdown(blog.content,
+    #                             extensions=['markdown.extensions.extra','markdown.extensions.codehilite','markdown.extensions.toc',])
+
+    context={}
     context['blog']=blog
     context['previous_blog']=Blog.objects.filter(created_time__gt=blog.created_time).last()
     context['next_blog']=Blog.objects.filter(created_time__lt=blog.created_time).first()
     context['blog']=blog
-    return render_to_response('blog_detail.html', context)
+    response= render_to_response('blog_detail.html', context)#响应
+    response.set_cookie(read_cookie_key,'true')#阅读cookie标记
+    return response
 
 
 # Create your views here.
