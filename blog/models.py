@@ -1,9 +1,6 @@
 from django.db import models
-from django.db.models.fields import exceptions
 from django.contrib.auth.models import  User
-
-from ckeditor.fields import RichTextField
-from read_statistics.models import ReadNum
+from ckeditor_uploader.fields import RichTextUploadingField
 from read_statistics.models import ReadBunExtendMethod
 
 
@@ -17,13 +14,11 @@ class BlogType(models.Model):
 
 class Blog(models.Model, ReadBunExtendMethod):
     title=models.CharField(max_length=50)
-    blog_type=models.ForeignKey(BlogType, on_delete=models.DO_NOTHING)
-    content=RichTextField()
-    author=models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    blog_type=models.ForeignKey(BlogType, on_delete=models.CASCADE)
+    content=RichTextUploadingField()
+    author=models.ForeignKey(User, on_delete=models.CASCADE)
     created_time=models.DateTimeField(auto_now_add=True)
     last_updated_time=models.DateTimeField(auto_now=True)
-
-
 
     def __str__(self):
         return "<Blog:%s>"%self.title

@@ -1,10 +1,12 @@
 #import markdown
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render,  get_object_or_404
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.db.models import Count
+
 from .models import Blog,BlogType
 from read_statistics.utils import read_satistics_once_more
+from user.forms import LoginForm
 
 
 def blog_common_data(request, blogs_all_list):
@@ -52,27 +54,26 @@ def blog_with_type(request, blog_type_pk):
     blogs_all_list=Blog.objects.filter(blog_type=blog_type)
     context=blog_common_data(request, blogs_all_list)
     context['blog_type']=blog_type
-    return render_to_response('blog_with_type.html', context)
+    return render(request,'blog_with_type.html', context)
 
 def blog_with_date(request, year, month):
     blogs_all_list=Blog.objects.filter(created_time__year=year, created_time__month=month)
     context=blog_common_data(request,blogs_all_list)
     context['blogs_with_date']='%s年%s月'% (year, month)
-    return render_to_response('blog_with_date.html', context)
+    return render(request,'blog_with_date.html', context)
 
 def blog_detail(request, blog_pk):
-    blog=get_object_or_404(Blog, pk=blog_pk)
-    read_cookie_key=read_satistics_once_more(request,blog)
-    # blog.content=markdown.markdown(blog.content,
-    #                             extensions=['markdown.extensions.extra','markdown.extensions.codehilite','markdown.extensions.toc',])
+    blog = get_object_or_404(Blog, pk=blog_pk)
+    read_cookie_key = read_satistics_once_more(request, blog)
 
-    context={}
-    context['blog']=blog
-    context['previous_blog']=Blog.objects.filter(created_time__gt=blog.created_time).last()
-    context['next_blog']=Blog.objects.filter(created_time__lt=blog.created_time).first()
-    context['blog']=blog
-    response= render_to_response('blog_detail.html', context)#响应
-    response.set_cookie(read_cookie_key,'true')#阅读cookie标记
+    context = {}
+    context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
+    context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
+    context['blog'] = blog
+    context['login_form'] = LoginForm()
+
+    response = render(request, 'blog_detail.html', context) # 响应
+    response.set_cookie(read_cookie_key, 'true') # 阅读cookie标记
     return response
 
 
